@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Game\Logic;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class PlayController extends Controller
@@ -14,16 +14,18 @@ class PlayController extends Controller
      */
     public function index(Logic $gameLogic)
     {
-        //@todo login
-
         //@todo créate unique id for game session
 
-        //@todo passer le nombre rows en param
-        $rows = 3;
+        $rows = Config::get('game.game.size');
+        $symbols = Config::get('game.game.symbols');
 
         $gameLogic->newGame($rows);
+        $gameLogic->setSymbols($symbols);
 
-        return View('play', ['rows' => $rows]);
+        return View('play', [
+            'rows' => $rows,
+            'symbols' => $symbols
+        ]);
     }
 
     /**
@@ -39,46 +41,50 @@ class PlayController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $gameLogic->setSymbols(Config::get('game.game.symbols'));
+
         if (
             empty($request->get('x')) || !is_numeric($request->get('x')) ||
             empty($request->get('y')) || !is_numeric($request->get('y')) ||
             empty($request->get('symbol')) || !in_array($request->get('symbol'), $gameLogic->getSymbols())
         ) {
-            return $this->SendResponse(null, 'Wrong Parameter 0x01');
+            return $this->SendJsonResponse(null, 'Wrong Parameter 0x01');
         }
 
         //check square not already played
         if (!$gameLogic->isSquareAvailable($request->get('x'), $request->get('y'))) {
-            return $this->SendResponse(null, 'Square already checked');
+            return $this->SendJsonResponse(null, 'Square already checked');
         }
 
         //save sur la couche de persistence
         if (!$gameLogic->saveSquare($request->get('x'), $request->get('y'), $request->get('symbol'))) {
-            return $this->SendResponse(null, 'Error during save 0x02');
+            return $this->SendJsonResponse(null, 'Error during save 0x02');
         }
 
         //check si gagné (a reporter dans la vue en js)
         if ($winner = $gameLogic->isGameWinned()) {
-            return $this->SendResponse(true, null, null, $request->get('symbol'));
+            return $this->SendJsonResponse(true, null, null, $request->get('symbol'));
         }
 
         // check si la grille est pleine
         if (!$gameLogic->isSquareLeft()) {
-            return $this->SendResponse(true, null, true);
+            return $this->SendJsonResponse(true, null, true);
         }
 
         // return success
-        return $this->SendResponse(true);
+        return $this->SendJsonResponse(true);
     }
 
     /**
+     * Send Json preFormated response
+     *
      * @param null|true $result
      * @param null|string $error
      * @param null|bool $gameover
      * @param null|string $winner
      * @return JsonResponse
      */
-    private function SendResponse($result = null, $error = null, $gameover = false, $winner = null) {
+    private function SendJsonResponse($result = null, $error = null, $gameover = false, $winner = null) {
         $ret = New \StdClass();
         $ret->error = $error;
         $ret->result = $result;

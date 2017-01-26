@@ -11,6 +11,8 @@
 |
 */
 
-Route::get('/', 'PlayController@index')->name('home');
+Route::get('/', 'PlayController@index')->name('home')->middleware('auth');
 
-Route::post('play/', 'PlayController@play')->name('play');
+Route::post('play/', 'PlayController@play')->name('play')->middleware('auth');
+
+Auth::routes();

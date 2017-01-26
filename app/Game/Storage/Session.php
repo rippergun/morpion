@@ -10,7 +10,6 @@ class Session implements StorageInterface
     private $session;
 
     function __construct(\Illuminate\Session\Store $session)
-//    function __construct(\Symfony\Component\HttpFoundation\Session\Session $session)
     {
         $this->session = $session;
     }

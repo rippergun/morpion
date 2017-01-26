@@ -12,6 +12,8 @@ class Logic
     private $storage;
 
     /**
+     * default symbols
+     * available in config/game.php
      * @var array
      */
     private $symbols = ['X', 'O'];
@@ -43,6 +45,7 @@ class Logic
     }
 
     /**
+     * init new game
      * @param $size
      */
     public function newGame($size)
@@ -61,13 +64,15 @@ class Logic
             }
         }
 
+        // save brand new game
         $this->saveGame($game);
     }
 
     /**
+     * get Game from storage
      * @return array
      */
-    function getWholeGame()
+    private function getWholeGame()
     {
         //get the whole game
         return (array) $this->storage->getKey($this->gameKey);
@@ -80,6 +85,14 @@ class Logic
     public function getSymbols()
     {
         return $this->symbols;
+    }
+
+    /**
+     * @param array $symbols
+     */
+    public function setSymbols(Array $symbols)
+    {
+        $this->symbols = $symbols;
     }
 
     /**
@@ -99,11 +112,12 @@ class Logic
      */
     public function saveGameSize($size)
     {
-        $this->storage->setKey($this->gameSizeKey, $size);
-        $this->gameSize = $size;
+        $this->storage->setKey($this->gameSizeKey, (int) $size);
+        $this->gameSize = (int) $size;
     }
 
     /**
+     * check if square is not already played
      * @param int $x
      * @param int $y
      * @return bool
