@@ -48,8 +48,7 @@
                 data: {
                     x: $this.data('x'),
                     y: $this.data('y'),
-                    symbol: currentSymbol,
-                    _token: "{!! csrf_token() !!}"
+                    symbol: currentSymbol
                 },
                 type: 'POST',
                 success: function (data) {
