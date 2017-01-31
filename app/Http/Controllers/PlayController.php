@@ -62,7 +62,7 @@ class PlayController extends Controller
         }
 
         //check si gagné (a reporter dans la vue en js)
-        if ($winner = $gameLogic->isGameWinned()) {
+        if ($winner = $gameLogic->isGameWinned($request->get('symbol'))) {
             return $this->SendJsonResponse(true, null, null, $request->get('symbol'));
         }
 

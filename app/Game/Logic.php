@@ -168,25 +168,25 @@ class Logic
      * check if there is a winner
      * @return bool
      */
-    public function isGameWinned()
+    public function isGameWinned($symbol)
     {
         // check rows
-        if ($this->checkFullRow()) {
+        if ($this->checkFullRowOrColumn($symbol, false)) {
             return true;
         }
 
         // check columns
-        if ($this->checkFullLine()){
+        if ($this->checkFullRowOrColumn($symbol, true)){
             return true;
         }
 
         //chek diagonal
-        if ($this->checkFullDiagonal()){
+        if ($this->checkFullDiagonal($symbol)){
             return true;
         }
 
         //check reverse diagonal
-        if ($this->checkFullDiagonalReverse()){
+        if ($this->checkFullDiagonalReverse($symbol)){
             return true;
         }
 
@@ -194,48 +194,28 @@ class Logic
     }
 
     /**
+     * @param $symbol
+     * @param bool $checkColumn true means check column
      * @return bool
      */
-    private function checkFullRow()
-    {
-        $game = $this->getWholeGame();
-        for ($y = 1; $y <= $this->getGameSize(); $y++) {
-
-            $total = $this->resetTotal();
-
-            //check lines
-            for ($x = 1; $x <= $this->getGameSize(); $x++) {
-                $symbol = $game[$y][$x];
-                if (!is_null($symbol)) {
-                    $total[$symbol]++;
-                    // winner
-                    if ($total[$symbol] == $this->getGameSize()) {
-                        return true;
-                    }
-                }
-
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    private function checkFullLine()
+    private function checkFullRowOrColumn($symbol, $checkColumn = true)
     {
         $game = $this->getWholeGame();
         for ($x = 1; $x <= $this->getGameSize(); $x++) {
 
-            $total = $this->resetTotal();
+            $total = 0;
 
             for ($y = 1; $y <= $this->getGameSize(); $y++) {
-                $symbol = $game[$y][$x];
-                if (!is_null($symbol)) {
-                    $total[$symbol]++;
+                $square = $game[$x][$y];
+                if ($checkColumn === true) {
+                    $square = $game[$y][$x];
+                }
+
+                if ($symbol == $square) {
+                    $total++;
 
                     // winner
-                    if ($total[$symbol] == $this->getGameSize()) {
+                    if ($total == $this->getGameSize()) {
                         return true;
                     }
                 }
@@ -244,21 +224,21 @@ class Logic
         return false;
     }
 
+
     /**
+     * @param $symbol
      * @return bool
      */
-    private function checkFullDiagonal()
+    private function checkFullDiagonal($symbol)
     {
         $game = $this->getWholeGame();
-        $total = $this->resetTotal();
+        $total = 0;
 
         for ($x = $y = 1; $x <= $this->getGameSize() && $y <= $this->getGameSize(); $x++, $y++) {
-            $symbol = $game[$y][$x];
-            if (!is_null($symbol)) {
-                $total[$symbol]++;
-
+            if ($symbol == $game[$y][$x]) {
+                $total++;
                 // winner
-                if ($total[$symbol] == $this->getGameSize()) {
+                if ($total == $this->getGameSize()) {
                     return true;
                 }
             }
@@ -267,20 +247,19 @@ class Logic
     }
 
     /**
+     * @param $symbol
      * @return bool
      */
-    private function checkFullDiagonalReverse()
+    private function checkFullDiagonalReverse($symbol)
     {
         $game = $this->getWholeGame();
-        $total = $this->resetTotal();
+        $total = 0;
 
         for ($x = $this->getGameSize(), $y = 1; $x >= 1 && $y <= $this->getGameSize(); $x--, $y++) {
-            $symbol = $game[$y][$x];
-            if (!is_null($symbol)) {
-                $total[$symbol]++;
-
+            if ($symbol == $game[$y][$x]) {
+                $total++;
                 // winner
-                if ($total[$symbol] == $this->getGameSize()) {
+                if ($total == $this->getGameSize()) {
                     return true;
                 }
             }
